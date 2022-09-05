@@ -62,7 +62,6 @@ module.exports = async function() {
             //let x = await openWebServer();
             //token = await getAccessToken(x);
         token = await getClientAccessToken();
-        console.log(token)
         process.stdout.clearLine(0)
         process.stdout.cursorTo(0)
     }
