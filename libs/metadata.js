@@ -2,7 +2,7 @@ var ffmetadata = require("ffmetadata");
 var ffmpeg = require('fluent-ffmpeg');
 var fs = require("fs")
 const colors = require("colors")
-
+const filter = require("./filterFilename");
 let metaprogress = 0;
 
 module.exports = async function(songData, songTempPath) {
@@ -19,7 +19,7 @@ module.exports = async function(songData, songTempPath) {
         if (err) {
             console.error(`Error writing metadata for ${songData.name} - ${songData.artists[0]}`);
         } else {
-            var dir = `./output/${songData.artists[0]}/${songData.album.replaceAll("/","").replaceAll(":","")}/`;
+            var dir = `./output/${filter(songData.artists[0])}/${filter(songData.album)}/`;
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, {
                     recursive: true
@@ -46,9 +46,9 @@ module.exports = async function(songData, songTempPath) {
                     '-id3v2_version',
                     '3',
                 )
-                .save(`./output/${songData.artists[0]}/${songData.album.replaceAll("/","").replaceAll(":","")}/${songData.name.replaceAll("/","")}.mp3`);
+                .save(dir + filter(`${songData.name}`) + ".mp3");
             metaprogress++;
-            console.log(`[${metaprogress}] Completed `.yellow + (`${songData.name.replaceAll("/","")} - ${songData.artists[0]}`))
+            console.log(`[${metaprogress}] Completed `.yellow + (`${songData.name} - ${songData.artists[0]}`))
         }
     });
 }

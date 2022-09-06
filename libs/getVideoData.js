@@ -5,9 +5,8 @@ const fetch = require("node-fetch");
 const fs = require('fs');
 const colors = require("colors");
 var SpotifyWebApi = require('spotify-web-api-node');
-const path = require("path");
 var spotifyApi = new SpotifyWebApi()
-
+const filter = require("./filterFilename");
 
 module.exports = async function(argURL) {
     return ytAPI.initalize().then(async function() {
@@ -31,14 +30,26 @@ async function main(argURL) {
         process.stdout.write(`Fetching songs in album ${argURL.pathname.split("/")[2].green}\n`)
 
         let tracks = (await spotifyApi.getAlbumTracks(argURL.pathname.split("/")[2], {
-            offset: 1,
+            offset: 0,
             limit: 50,
-            fields: 'items'
+            fields: 'items',
         })).body.items
         for (let i = 0; i < tracks.length; i++) {
             trackIDS.push(tracks[i].id);
         }
         songs = await getTrackMeta(tracks, true);
+
+    }
+    if (argURL.pathname.startsWith("/playlist")) {
+        process.stdout.write(`Fetching songs in playlist ${argURL.pathname.split("/")[2].green}\nThis may take a while...\n`)
+        let x = (await spotifyApi.getPlaylistTracks(argURL.pathname.split("/")[2])).body.items;
+        x.forEach(song => {
+            trackIDS.push(song.track.id);
+        })
+
+        songs = await getTrackMeta(trackIDS);
+
+
 
     }
     if (trackIDS.length == 0) return console.log("No tracks found");
@@ -53,7 +64,8 @@ async function main(argURL) {
                 amount++;
                 fetch(songs[i].art)
                     .then(res => {
-                        dlpath = `./temp/${songs[i].name.replaceAll("/","")} - ${songs[i].artists[0].replaceAll("/","")}.png`
+                        dlpath = `./temp/${filter(songs[i].name)} - ${filter(songs[i].artists[0])}.png`
+
                         res.body.pipe(fs.createWriteStream(dlpath));
                         songs[i].art = dlpath
                         if (amount == songs.length) resolve(songs);

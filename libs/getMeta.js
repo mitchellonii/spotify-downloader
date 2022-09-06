@@ -4,12 +4,17 @@ var spotifyApi = new SpotifyWebApi()
 
 module.exports = async function(arr, isalbum = false, ) {
     const token = await require("./api")()
+
     spotifyApi.setAccessToken(token);
     let output = []
 
     if (!isalbum) {
-
+        process.stdout.write(`0/${arr.length}`);
         for (let i = 0; i < arr.length; i++) {
+            process.stdout.clearLine(0);
+            process.stdout.cursorTo(0);
+            process.stdout.write(`${i}/${arr.length}`);
+
             let y = (await spotifyApi.getTrack(arr[i])).body
             let albumArt = (await spotifyApi.getAlbum(y.album.id)).body.images[0].url;
             let artists = []
@@ -27,6 +32,7 @@ module.exports = async function(arr, isalbum = false, ) {
                 genre: genre
             })
         }
+        process.stdout.write(`\n`);
     } else {
         let album = await spotifyApi.getAlbum((await spotifyApi.getTrack(arr[0].id)).body.album.id);
         let albumArt = album.body.images[0].url;
