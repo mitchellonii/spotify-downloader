@@ -13,7 +13,7 @@ module.exports = async function(arr, isalbum = false, ) {
         for (let i = 0; i < arr.length; i++) {
             process.stdout.clearLine(0);
             process.stdout.cursorTo(0);
-            process.stdout.write(`${i}/${arr.length}`);
+            process.stdout.write(`${i+1}/${arr.length}`);
 
             let y = (await spotifyApi.getTrack(arr[i])).body
             let albumArt = (await spotifyApi.getAlbum(y.album.id)).body.images[0].url;
